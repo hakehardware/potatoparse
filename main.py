@@ -2,8 +2,18 @@ import subprocess
 import time
 import json
 import re
+import logging
 from urllib.parse import urlparse
 from datetime import datetime
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 PATH = '/var/lib/docker/containers/be6e3c97605f2c3f49e9eb3e7773c0d22956f4a5f9352a23a62dc05edfbcfdc1/be6e3c97605f2c3f49e9eb3e7773c0d22956f4a5f9352a23a62dc05edfbcfdc1-json.log'
 
@@ -292,19 +302,19 @@ def parse_new_logs():
             print("Exiting...")
 
 def parse_logs():
-    # Define the regular expression pattern to extract information from each log line
-    log_pattern = re.compile(r'(?P<timestamp>\S+)\s+(?P<level>\S+)\s+(?P<message>.+)')
-
-    # Initialize a list to store parsed data
-    raw_logs = []
-
     with open(PATH, 'r') as file:
         for line in file:
             log = parse_log(line)
             event = check_for_key_event(log)
 
             if event:
-                print(f'{event["timestamp"]}: {event["parsed"]}')
+                event_text = f'{event["timestamp"]}: {event["parsed"]}'
+                if event['level'] == 'INFO':
+                    logging.info(event_text)
+                elif event['level'] == 'ERROR' or event['level'] == 'FATAL':
+                    logging.error(event_text)
+                else:
+                    logging.info(event_text)
 
 
 
