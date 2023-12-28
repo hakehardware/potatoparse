@@ -143,12 +143,7 @@ def check_for_key_event(log):
         }
 
     if KEY_EVENTS[9] in log[2]:
-        event = {
-            'timestamp': log[0],
-            'level': log[1],
-            'o_log': log[2],
-            'parsed': f'New ATX Challenge Building.'
-        }
+        event = None
 
     if KEY_EVENTS[10] in log[2]:
         json_part = extract_json_from_string(log[2])
