@@ -16,7 +16,7 @@ def parse_log(log_entry):
     log_path, log_type, name = log_entry['log_path'], log_entry['log_type'], log_entry['name']
     
     events = []
-    with open(log_path, 'r', encoding='utf-16') as file:
+    with open(log_path, 'r', encoding='utf-8') as file:
 
         logs = []
         for raw_log in file:
