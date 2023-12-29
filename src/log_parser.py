@@ -27,13 +27,7 @@ class LOGPARSER:
                 return log_entry
             
         except ValueError as e:
-            logger.error(f'Error handling log: {log}')
-                        # Log the exception type and message
-            logger.error(f"Exception type: {type(e).__name__}, Message: {str(e)}")
-
-            # Log the traceback information
-            traceback_info = traceback.format_exc()
-            logger.error(f"Traceback:\n{traceback_info}")
+            pass
             
         except Exception as e:
             logger.error(f'Error handling log: {log}')

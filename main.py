@@ -16,10 +16,11 @@ def parse_log(log_entry):
     log_path, log_type, name = log_entry['log_path'], log_entry['log_type'], log_entry['name']
     
     events = []
-    with open(log_path, 'r') as file:
+    with open(log_path, 'r', encoding='utf-16') as file:
+
         logs = []
         for raw_log in file:
-            logs.append(raw_log)
+                logs.append(raw_log)
 
 
         for log in logs:
@@ -43,6 +44,9 @@ def parse_log(log_entry):
                 traceback_info = traceback.format_exc()
                 logger.error(f"Traceback:\n{traceback_info}")
 
+
+
+
     return events
 
 
@@ -58,11 +62,11 @@ def parse_old_logs(config):
 def run(config):
     logger.info('Parsing Old Logs')
     old_logs = parse_old_logs(config)
-
+    logger.info(f"Got {len(old_logs)} logs")
     for log in old_logs:
         logger.info(f"{log['timestamp']} [{log['name']}]: {log['parsed']}")
 
-    if config['output']:
+    if config.get('output', None):
         logger.info(old_logs[0])
         logger.info(f"Storing logs at {config['output']}")
         Utils.write_log(old_logs, config['output'])
