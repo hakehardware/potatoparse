@@ -2,6 +2,7 @@ import yaml
 import os
 import re
 import json
+import csv
 
 from src.logger import logger
 
@@ -34,3 +35,25 @@ class Utils:
         else:
             # Return None if no JSON object is found
             return None
+        
+    @staticmethod
+    def write_log(logs, output_path):
+
+        # Assuming 'logs' is a list of dictionaries
+        for log_entry in logs:
+            if 'o_log' in log_entry:
+                del log_entry['o_log']
+
+
+        # Define the CSV column names
+        fieldnames = ['level', 'timestamp', 'name', 'parsed']
+
+        # Open the CSV file for writing
+        with open(output_path + '\log.csv', mode='w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            
+            # Write the header row
+            writer.writeheader()
+            
+            # Write the data rows
+            writer.writerows(logs)

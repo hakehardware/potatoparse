@@ -2,3 +2,4 @@ logs:
   - name: node01
     log_path: "C:\\Users\\ajnab\\AppData\\Roaming\\Spacemesh"
     log_type: 'default'
+output: 'D:\\Code\\potatoparse'

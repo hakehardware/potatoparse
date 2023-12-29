@@ -56,9 +56,16 @@ def parse_old_logs(config):
 
 
 def run(config):
+    logger.info('Parsing Old Logs')
     old_logs = parse_old_logs(config)
+
     for log in old_logs:
-        logger.info(f"[{log['name']}]: {log['parsed']}")
+        logger.info(f"{log['timestamp']} [{log['name']}]: {log['parsed']}")
+
+    if config['output']:
+        logger.info(old_logs[0])
+        logger.info(f"Storing logs at {config['output']}")
+        Utils.write_log(old_logs, config['output'])
 
 def main():
     parser = argparse.ArgumentParser(description="Process command line arguments.")
@@ -71,6 +78,7 @@ def main():
 
     if args.config:
         config = Utils.read_yaml_file(args.config)
+        logger.info(f"Imported Config: {config}")
     else:
         if not args.logs or not args.type:
             parser.error("-d (data directory) and -t (type of logs) are required if -c (config) is not provided.")
