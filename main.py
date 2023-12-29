@@ -5,6 +5,7 @@ import re
 import logging
 from urllib.parse import urlparse
 from datetime import datetime
+import traceback
 
 logging.basicConfig(
     level=logging.INFO,
@@ -269,19 +270,29 @@ def check_for_key_event(log):
     return event
 
 def parse_log(log):
-    log_pattern = re.compile(r'(?P<timestamp>\S+)\s+(?P<level>\S+)\s+(?P<message>.+)')
-    json_log = json.loads(log.strip())['log']
-    match = log_pattern.match(json_log)
+    try:
+        log_pattern = re.compile(r'(?P<timestamp>\S+)\s+(?P<level>\S+)\s+(?P<message>.+)')
+        json_log = json.loads(log.strip())['log']
+        match = log_pattern.match(json_log)
 
-    if match:
-        timestamp_str = match.group('timestamp')
-        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S.%f%z').strftime("%b %d, %Y %I:%M %p")
-        level = match.group('level')
-        message = ' '.join(match.group('message').split())
+        if match:
+            timestamp_str = match.group('timestamp')
+            timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S.%f%z').strftime("%b %d, %Y %I:%M %p")
+            level = match.group('level')
+            message = ' '.join(match.group('message').split())
 
-        log_entry = [timestamp, level, message]
-        return log_entry
-    
+            log_entry = [timestamp, level, message]
+            return log_entry
+        
+    except Exception as e:
+        logging.error(f'Error handling log: {log}')
+                    # Log the exception type and message
+        logging.error(f"Exception type: {type(e).__name__}, Message: {str(e)}")
+
+        # Log the traceback information
+        traceback_info = traceback.format_exc()
+        logging.error(f"Traceback:\n{traceback_info}")
+
     return None
 
 def parse_new_logs():
@@ -304,17 +315,29 @@ def parse_new_logs():
 def parse_logs():
     with open(PATH, 'r') as file:
         for line in file:
-            log = parse_log(line)
-            event = check_for_key_event(log)
+            try:
+                
+                log = parse_log(line)
+                event = check_for_key_event(log)
 
-            if event:
-                event_text = f'{event["timestamp"]}: {event["parsed"]}'
-                if event['level'] == 'INFO':
-                    logging.info(event_text)
-                elif event['level'] == 'ERROR' or event['level'] == 'FATAL':
-                    logging.error(event_text)
-                else:
-                    logging.info(event_text)
+                if event:
+                    event_text = f'{event["timestamp"]}: {event["parsed"]}'
+                    if event['level'] == 'INFO':
+                        logging.info(event_text)
+                    elif event['level'] == 'ERROR' or event['level'] == 'FATAL':
+                        logging.error(event_text)
+                    else:
+                        logging.info(event_text)
+
+            except Exception as e:
+                logging.error(f'Error handling log: {log}')
+                            # Log the exception type and message
+                logging.error(f"Exception type: {type(e).__name__}, Message: {str(e)}")
+
+                # Log the traceback information
+                traceback_info = traceback.format_exc()
+                logging.error(f"Traceback:\n{traceback_info}")
+
 
 
 
