@@ -10,37 +10,48 @@ from datetime import datetime
 import traceback
 from src.logger import logger
 from src.utils import Utils
+from src.log_parser import LOGPARSER
 
-def parse_log(log):
-    print(log)
-
-def parse_default_log(log_entry):
-    log_path = log_entry['log_path']
-
+def parse_log(log_entry):
+    log_path, log_type, name = log_entry['log_path'], log_entry['log_type'], log_entry['name']
+    
+    events = []
     with open(log_path, 'r') as file:
+        logs = []
         for raw_log in file:
+            logs.append(raw_log)
+
+
+        for log in logs[0:1]:
             try:
-                parse_log(raw_log)
+                if log_type == 'Docker':
+                    log = json.loads(log.strip())['log']
+
+                t_log = LOGPARSER.transform_log(log)
+                event = LOGPARSER.check_for_key_event(t_log, name)
+
+                if event:
+                    events.append(event)
+
 
             except Exception as e:
-                pass
+                print(e)
 
+    return events
 
-def parse_docker_log(log_entry):
-    logger.info(log_entry)
 
 def parse_old_logs(config):
+    old_logs = []
     for log_entry in config['logs']:
+        old_log = parse_log(log_entry)
+        old_logs.extend(old_log)
 
-        if log_entry['log_type'] == 'default':
-            parse_default_log(log_entry)
-        elif log_entry['log_type'] == 'docker':
-            parse_default_log(log_entry)
-        else:
-            logger.error(f"Unknown log type: {log_entry['log_type']}")
+    return old_logs
+
 
 def run(config):
-    parse_old_logs(config)
+    old_logs = parse_old_logs(config)
+    logger.info(old_logs)
 
 def main():
     parser = argparse.ArgumentParser(description="Process command line arguments.")
@@ -85,34 +96,7 @@ if __name__ == "__main__":
 
     
 
-# def parse_log(log):
-#     try:
-#         log_pattern = re.compile(r'(?P<timestamp>\S+)\s+(?P<level>\S+)\s+(?P<message>.+)')
-#         json_log = json.loads(log.strip())['log']
-#         match = log_pattern.match(json_log)
 
-#         if match:
-#             timestamp_str = match.group('timestamp')
-#             timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S.%f%z').strftime("%b %d, %Y %I:%M %p")
-#             level = match.group('level')
-#             message = ' '.join(match.group('message').split())
-
-#             log_entry = [timestamp, level, message]
-#             return log_entry
-        
-#     except ValueError as e:
-#         return None
-        
-#     except Exception as e:
-#         logging.error(f'Error handling log: {log}')
-#                     # Log the exception type and message
-#         logging.error(f"Exception type: {type(e).__name__}, Message: {str(e)}")
-
-#         # Log the traceback information
-#         traceback_info = traceback.format_exc()
-#         logging.error(f"Traceback:\n{traceback_info}")
-
-#     return None
 
 # def parse_new_logs():
 #     with subprocess.Popen(['tail', '-n', '0', '-F', PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:

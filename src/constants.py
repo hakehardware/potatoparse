@@ -21,7 +21,8 @@ KEY_EVENTS = [
     'proposalBuilder started',
     'proposal created',
     'Failed to generate proof',
-    "can't recover tortoise state"
+    "can't recover tortoise state",
+    "App version"
 ]
 POET_ENDPOINTS = [
     {'endpoint': 'proofs', 'exp': 'Getting PoET Proof'},
