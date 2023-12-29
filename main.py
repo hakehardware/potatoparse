@@ -78,7 +78,7 @@ def watch_logs(config):
             temp_logs = sorted(temp_logs, key=lambda x: x['timestamp'])
             for log in temp_logs:
                 logger.info(f'{log["timestamp"]} - [{log["name"]}]: {log["parsed"]}')
-                if config['output']:
+                if config.get('output', None):
                     Utils.write_key_event_to_csv(log, config['output'], current_time)
 
             time.sleep(1)
