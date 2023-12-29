@@ -62,14 +62,16 @@ def parse_old_logs(config):
 def run(config):
     logger.info('Parsing Old Logs')
     old_logs = parse_old_logs(config)
-    logger.info(f"Got {len(old_logs)} logs")
-    for log in old_logs:
+    sorted_data = sorted(old_logs, key=lambda x: x['timestamp'])
+
+    logger.info(f"Got {len(sorted_data)} logs")
+    for log in sorted_data:
         logger.info(f"{log['timestamp']} [{log['name']}]: {log['parsed']}")
 
     if config.get('output', None):
-        logger.info(old_logs[0])
+        logger.info(sorted_data[0])
         logger.info(f"Storing logs at {config['output']}")
-        Utils.write_log(old_logs, config['output'])
+        Utils.write_log(sorted_data, config['output'])
 
 def main():
     parser = argparse.ArgumentParser(description="Process command line arguments.")
