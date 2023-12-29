@@ -18,6 +18,7 @@ def watch_logs(config):
     logger.info('Watching for new log files...')
     last_sizes = {file_path['log_path']: 0 for file_path in config['logs']}
     logs = []
+    current_time = datetime.now().timestamp() * 1000
 
     try:
         count = 0
@@ -70,15 +71,18 @@ def watch_logs(config):
             count = count + 1
 
             # Periodically print watching logs to screen
-            if count > 1000:
+            if count > 300:
                 logger.info('Watching logs...')
                 count = 0
 
             temp_logs = sorted(temp_logs, key=lambda x: x['timestamp'])
             for log in temp_logs:
                 logger.info(f'{log["timestamp"]} - [{log["name"]}]: {log["parsed"]}')
+                if config['output']:
+                    Utils.write_key_event_to_csv(log, config['output'], current_time)
 
             time.sleep(1)
+
     except KeyboardInterrupt:
         print("Stopped watching log files.")
         return logs

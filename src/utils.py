@@ -5,6 +5,7 @@ import json
 import csv
 
 from src.logger import logger
+from datetime import datetime
 
 class Utils:
     @staticmethod
@@ -37,23 +38,8 @@ class Utils:
             return None
         
     @staticmethod
-    def write_log(logs, output_path):
+    def write_key_event_to_csv(log, output, log_time):
 
-        # Assuming 'logs' is a list of dictionaries
-        for log_entry in logs:
-            if 'o_log' in log_entry:
-                del log_entry['o_log']
-
-
-        # Define the CSV column names
-        fieldnames = ['level', 'timestamp', 'name', 'parsed']
-
-        # Open the CSV file for writing
-        with open(output_path + '\log.csv', mode='w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            
-            # Write the header row
-            writer.writeheader()
-            
-            # Write the data rows
-            writer.writerows(logs)
+        with open(output + f'output_{log_time}.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([log['level'], log['timestamp'], log['name'], log['parsed']])
