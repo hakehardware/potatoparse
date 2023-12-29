@@ -11,6 +11,7 @@ import traceback
 from src.logger import logger
 from src.utils import Utils
 from src.log_parser import LOGPARSER
+from time import sleep
 
 def parse_log(log_entry):
     log_path, log_type, name = log_entry['log_path'], log_entry['log_type'], log_entry['name']
@@ -59,6 +60,7 @@ def watch_logs(config):
         tail_processes.append(tail_process)
 
     try:
+        count = 0
         while True:
             for process, name, log_type in zip(tail_processes, names, log_types):
                 # Read a line from the tail process
@@ -73,6 +75,17 @@ def watch_logs(config):
 
                     if event:
                         logger.info(f"{log['timestamp']} [{name}]: {log['parsed']}")
+                        count = 0
+
+                    logger.info(t_log)
+
+            sleep(0.1)
+
+            if count > 1000:
+                logger.info('Watching for logs.')
+                count = 0
+
+            count = count + 1
 
     except KeyboardInterrupt:
         # Handle Ctrl+C to stop tailing the log files
