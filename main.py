@@ -12,7 +12,7 @@ from src.logger import logger
 from src.utils import Utils
 
 def parse_log(log):
-    pass
+    print(log)
 
 def parse_default_log(log_entry):
     log_path = log_entry['log_path']
