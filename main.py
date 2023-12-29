@@ -22,7 +22,6 @@ def parse_log(log_entry):
         for raw_log in file:
                 logs.append(raw_log)
 
-
         for log in logs:
             try:
                 if log_type == 'Docker':
@@ -44,11 +43,41 @@ def parse_log(log_entry):
                 traceback_info = traceback.format_exc()
                 logger.error(f"Traceback:\n{traceback_info}")
 
-
-
-
     return events
 
+def watch_logs(config):
+    logger.info('Watching for new log files...')
+    tail_processes = []
+    log_types = []
+    names = []
+
+    for log_entry in config['logs']:
+        log_path, log_type, name = log_entry['log_path'], log_entry['log_type'], log_entry['name']
+        log_types.append(log_type)
+
+        tail_process = subprocess.Popen(['tail', '-f', log_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        tail_processes.append(tail_process)
+
+    try:
+        while True:
+            for process, name, log_type in zip(tail_processes, names, log_types):
+                # Read a line from the tail process
+                log = process.stdout.readline()
+
+                if log:
+                    if log_type == 'Docker':
+                        log = json.loads(log.strip())['log']
+
+                    t_log = LOGPARSER.transform_log(log)
+                    event = LOGPARSER.check_for_key_event(t_log, name)
+
+                    if event:
+                        logger.info(f"{log['timestamp']} [{name}]: {log['parsed']}")
+
+    except KeyboardInterrupt:
+        # Handle Ctrl+C to stop tailing the log files
+        for process in tail_processes:
+            process.terminate()
 
 def parse_old_logs(config):
     old_logs = []
@@ -69,9 +98,12 @@ def run(config):
         logger.info(f"{log['timestamp']} [{log['name']}]: {log['parsed']}")
 
     if config.get('output', None):
-        logger.info(sorted_data[0])
         logger.info(f"Storing logs at {config['output']}")
         Utils.write_log(sorted_data, config['output'])
+
+    watch_logs(config)
+
+    
 
 def main():
     parser = argparse.ArgumentParser(description="Process command line arguments.")
