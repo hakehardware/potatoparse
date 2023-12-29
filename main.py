@@ -18,7 +18,7 @@ def watch_logs(config):
     logger.info('Watching for new log files...')
     last_sizes = {file_path['log_path']: 0 for file_path in config['logs']}
     logs = []
-    current_time = datetime.now().timestamp() * 1000
+    current_time = int(datetime.now().timestamp() * 1000)
 
     try:
         count = 0
