@@ -252,14 +252,30 @@ class LOGPARSER:
             }
 
         if constants.KEY_EVENTS[22] in log[2]:
+            pattern = r"v\d+\.\d+\.\d+"
+            match = re.search(pattern, log[2])
+            if match:
+                version = match.group()
+            else:
+                version = "Version Not Found"
             event = {
                 'timestamp': log[0],
                 'level': log[1],
                 'o_log': log[2],
-                'parsed': "App Started!"
+                'parsed': f"Spacemesh App Version {version}"
             }
-            print(f'{event["timestamp"]}: {event["parsed"]}')
+
+        if constants.KEY_EVENTS[23] in log[2]:
+            json_part = Utils.extract_json_from_string(log[2])
+            event = {
+                'timestamp': log[0],
+                'level': log[1],
+                'o_log': log[2],
+                'parsed': f"Starting Spacemesh using data-dir {json_part.get('data-dir')} and post-dir {json_part.get('post-dir')}"
+            }
+            #print(f'{event["timestamp"]}: {event["parsed"]}')
         
         if event:
             event['name'] = name
+
         return event

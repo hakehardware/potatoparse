@@ -22,7 +22,7 @@ def parse_log(log_entry):
             logs.append(raw_log)
 
 
-        for log in logs[0:1]:
+        for log in logs:
             try:
                 if log_type == 'Docker':
                     log = json.loads(log.strip())['log']
@@ -35,7 +35,13 @@ def parse_log(log_entry):
 
 
             except Exception as e:
-                print(e)
+                logger.error(f'Error handling log: {log}')
+                            # Log the exception type and message
+                logger.error(f"Exception type: {type(e).__name__}, Message: {str(e)}")
+
+                # Log the traceback information
+                traceback_info = traceback.format_exc()
+                logger.error(f"Traceback:\n{traceback_info}")
 
     return events
 
@@ -51,7 +57,8 @@ def parse_old_logs(config):
 
 def run(config):
     old_logs = parse_old_logs(config)
-    logger.info(old_logs)
+    for log in old_logs:
+        logger.info(f"[{log['name']}]: {log['parsed']}")
 
 def main():
     parser = argparse.ArgumentParser(description="Process command line arguments.")

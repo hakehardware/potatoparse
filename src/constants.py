@@ -22,7 +22,8 @@ KEY_EVENTS = [
     'proposal created',
     'Failed to generate proof',
     "can't recover tortoise state",
-    "App version"
+    "App version",
+    "starting spacemesh"
 ]
 POET_ENDPOINTS = [
     {'endpoint': 'proofs', 'exp': 'Getting PoET Proof'},
