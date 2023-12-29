@@ -65,7 +65,9 @@ def extract_json_from_string(input_string):
         return None
     
 def check_for_key_event(log):
-    # print(log)
+    if not log:
+        return None
+    
     event = None
     if KEY_EVENTS[0] in log[2]:
         event = {
