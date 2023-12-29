@@ -284,6 +284,9 @@ def parse_log(log):
             log_entry = [timestamp, level, message]
             return log_entry
         
+    except ValueError as e:
+        return None
+        
     except Exception as e:
         logging.error(f'Error handling log: {log}')
                     # Log the exception type and message
@@ -316,7 +319,7 @@ def parse_logs():
     with open(PATH, 'r') as file:
         for line in file:
             try:
-                
+
                 log = parse_log(line)
                 event = check_for_key_event(log)
 
@@ -346,7 +349,3 @@ if __name__ == "__main__":
     # Read existing logs
     print("Existing Logs:")
     parse_logs()
-
-    # Watch for new logs
-    print("\nWatching for New Logs:")
-    #parse_new_logs()
